@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preeclampsia Risk Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Preeclampsia Risk Prediction</h1>
+        <p>Enter patient details below to predict the risk level.</p>
+
+        <form id="prediction-form">
+            <label>Diabetes:</label>
+            <select id="diabetes">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <label>History of Hypertension:</label>
+            <select id="hypertension">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <label>Protein Uria:</label>
+            <select id="protein_uria">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <button type="button" onclick="predictRisk()">Predict Risk</button>
+        </form>
+
+        <div id="result"></div>
+
+        <footer>
+            <p>Developed by Zainab</p>
+        </footer>
+    </div>
+
+    <script>
+        function predictRisk() {
+            let data = {
+                diabetes: parseInt(document.getElementById("diabetes").value),
+                "History of hypertension (y/n)": parseInt(document.getElementById("hypertension").value),
+                "Protien Uria": parseInt(document.getElementById("protein_uria").value)
+            };
+
+            fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                let resultDiv = document.getElementById("result");
+                if (result["Risk Level"] === "High Risk") {
+                    resultDiv.innerHTML = `<h2 class="high-risk">${result["Risk Level"]}</h2>
+                                           <p>Estimated Gestational Age: ${result["Estimated Gestational Age"]}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<h2 class="no-risk">${result["Risk Level"]}</h2>`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>
